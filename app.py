@@ -5,7 +5,7 @@ from services.service import Service
 
 # --- Configuration ---
 app = Flask(__name__)
-JSON_FILE = 'data.json'
+JSON_FILE = 'data/users.json'
 
 services = Service()
 
