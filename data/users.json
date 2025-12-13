@@ -4,8 +4,8 @@
         "password": "hi",
         "role": "candidate",
         "skills": {
-            "python": 6,
-            "javascript": 7
+            "Python": 0.6,
+            "JavaScript": 0.7
         }
     },
     "test@example.com": {
@@ -18,9 +18,9 @@
         "role": "candidate",
         "name": "Test Smith",
         "skills": {
-            "Java": 37,
+            "Java": 0.37,
             "Python": 0,
-            "C++": 100
+            "C++": 1
         }
     },
     "test3@example.com": {
