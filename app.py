@@ -249,6 +249,35 @@ def company_create_job():
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error saving job: {str(e)}'}), 500
 
+@app.route('/job_listings')
+def job_listings():
+    """Display all available job listings from all employers."""
+    user_email = request.args.get('user_email', 'Guest')
+
+    users_file = 'data/users.json'
+    all_jobs = []
+    
+    if os.path.exists(users_file):
+        with open(users_file, 'r') as f:
+            try:
+                users = json.load(f)
+            except json.JSONDecodeError:
+                return render_template('job_listings.html', user_email=user_email, all_jobs=[])
+
+        # Collect all jobs from all employers
+        for company_email, company_info in users.items():
+            role = company_info.get('role', '').lower()
+            if role in ('company', 'employer'):
+                jobs = company_info.get('jobs', [])
+                for job in jobs:
+                    job_with_company = dict(job)
+                    job_with_company['company_email'] = company_email
+                    job_with_company['company_name'] = company_info.get('name', company_email)
+                    all_jobs.append(job_with_company)
+
+    return render_template('job_listings.html', user_email=user_email, all_jobs=all_jobs)
+
+
 @app.route('/job_search', methods=['POST'])
 def job_search():
     """Handles the job search request by calling the service's job_search method."""

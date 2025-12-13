@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Job Listings</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box }
+        body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; padding:20px }
+        .container { max-width:1000px; margin:0 auto }
+        .header { background:white; border-radius:12px; padding:30px; margin-bottom:30px; box-shadow:0 10px 40px rgba(0,0,0,0.15) }
+        h1 { color:#333; margin-bottom:10px }
+        .user-info { color:#666; font-size:0.95em; margin-top:15px }
+        .button-group { display:flex; gap:10px; margin-top:20px }
+        .btn { padding:10px 18px; border-radius:8px; border:none; cursor:pointer; font-weight:600 }
+        .btn-primary { background:linear-gradient(135deg,#667eea,#764ba2); color:white }
+        .btn-secondary { background:#f8f9fa; border:1px solid #e0e0e0; color:#333 }
+        .btn:hover { transform:translateY(-2px) }
+        .jobs-list { display:grid; gap:20px; grid-template-columns:repeat(auto-fill,minmax(350px,1fr)) }
+        .job-card { background:white; border-radius:12px; padding:20px; box-shadow:0 5px 20px rgba(0,0,0,0.1); transition:all 0.3s ease }
+        .job-card:hover { transform:translateY(-4px); box-shadow:0 8px 30px rgba(0,0,0,0.15) }
+        .job-title { font-size:1.15em; font-weight:700; color:#333; margin-bottom:8px }
+        .job-company { font-size:0.9em; color:#667eea; font-weight:600; margin-bottom:12px }
+        .job-description { color:#666; line-height:1.6; margin-bottom:15px }
+        .job-id { font-size:0.8em; color:#999; word-break:break-all }
+        .empty { background:white; border-radius:12px; padding:60px 40px; text-align:center; box-shadow:0 5px 20px rgba(0,0,0,0.1) }
+        .empty h2 { color:#666; margin-bottom:15px }
+        .empty p { color:#999; margin-bottom:20px }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📖 Available Job Listings</h1>
+            <div class="user-info">Candidate: <strong>{{ user_email }}</strong></div>
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="window.location.href='/home?user_email={{ user_email }}&user_role=candidate'">← Back to Dashboard</button>
+            </div>
+        </div>
+
+        {% if all_jobs %}
+            <div class="jobs-list">
+                {% for job in all_jobs %}
+                    <div class="job-card">
+                        <div class="job-title">{{ job.title }}</div>
+                        <div class="job-company">{{ job.company_name }}</div>
+                        <div class="job-description">{{ job.description }}</div>
+                        <div class="job-id">Job ID: {{ job.job_id[:8] }}...</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty">
+                <h2>🔍 No job listings available</h2>
+                <p>Check back later for new opportunities.</p>
+                <button class="btn btn-primary" onclick="window.location.href='/home?user_email={{ user_email }}&user_role=candidate'">← Back to Dashboard</button>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

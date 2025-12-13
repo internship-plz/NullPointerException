@@ -60,5 +60,13 @@
                 "starting_pay": 0.0
             }
         ]
+    },
+    "testing": {
+        "password": "thisi",
+        "role": "candidate",
+        "name": "Candtest",
+        "skills": {
+            "no skill bill": 24
+        }
     }
 }
