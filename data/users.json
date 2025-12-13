@@ -339,5 +339,13 @@
         "skills": {
             "Haskell": 1
         }
+    },
+    "oliverbaohg": {
+        "password": "xiaotutu0sdfg",
+        "role": "candidate",
+        "name": "df",
+        "skills": {
+            "Haskell": 0
+        }
     }
 }
