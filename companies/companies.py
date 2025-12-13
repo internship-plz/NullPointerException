@@ -12,7 +12,7 @@ class JobSupplier:
         companies = {}
 
         for user_id, user_info in users.items():
-            if user_info.get('role') == 'company':
+            if user_info.get('role') == 'employer':
                 company = Company(
                     company_id=user_id,
                     name=user_info.get('name', ''),
