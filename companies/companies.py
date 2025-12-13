@@ -50,7 +50,9 @@ class Job:
 
     def calculate_bid(self, candidate_skills: dict):
         match_score = self.calculate_match(candidate_skills)
-        if match_score <= self.match_threshold:
+        # Use a small epsilon to avoid floating-point precision issues when comparing
+        epsilon = 1e-9
+        if match_score <= (self.match_threshold - epsilon):
             return None
         
         bid_amount = self.starting_pay + (match_score * (self.maximum_pay - self.starting_pay))

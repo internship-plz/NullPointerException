@@ -568,12 +568,14 @@ def job_search():
                     
                     job_with_company['_match_score'] = match_score
                     match_threshold = float(job_with_company.get('match_threshold', 0))
-                    job_with_company['_meets'] = (match_score > match_threshold)
+                    # Accept matches that are effectively greater than threshold allowing for tiny FP error
+                    epsilon = 1e-9
+                    job_with_company['_meets'] = (match_score > (match_threshold - epsilon))
                     
                     # Compute bid amount if candidate meets threshold
                     starting_pay = float(job_with_company.get('starting_pay', 0))
                     maximum_pay = float(job_with_company.get('maximum_pay', 0))
-                    
+
                     if job_with_company['_meets'] and maximum_pay > starting_pay:
                         # Scale salary: starting_pay + (match_score * (maximum_pay - starting_pay))
                         bid_amount = starting_pay + (match_score * (maximum_pay - starting_pay))

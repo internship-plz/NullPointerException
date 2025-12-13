@@ -35,7 +35,9 @@ class Service:
                 try:
                     match_score = job.calculate_match(candidate_skills)
                     job_dict['_match_score'] = round(float(match_score), 4)
-                    job_dict['_meets'] = (match_score > float(job.match_threshold))
+                    # use small epsilon to avoid floating point edge cases
+                    epsilon = 1e-9
+                    job_dict['_meets'] = (match_score > (float(job.match_threshold) - epsilon))
                 except Exception:
                     job_dict['_match_score'] = 0.0
                     job_dict['_meets'] = False
