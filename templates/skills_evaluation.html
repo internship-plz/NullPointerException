@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skills Evaluation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .skills-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .user-email {
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .skills-scroll-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+
+        .skills-scroll-container::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .skills-scroll-container::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+
+        .skills-scroll-container::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .skills-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+
+        .skill-item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .skill-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .skill-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .skill-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .skill-slider {
+            flex: 1;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .skill-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(102, 126, 234, 0.4);
+        }
+
+        .skill-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 5px rgba(102, 126, 234, 0.4);
+        }
+
+        .skill-value {
+            min-width: 45px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.95em;
+        }
+
+        .skill-level {
+            font-size: 0.75em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            flex: 1;
+            min-width: 140px;
+            padding: 12px 20px;
+            font-size: 0.95em;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            flex: 1;
+            min-width: 140px;
+            padding: 12px 20px;
+            font-size: 0.95em;
+            font-weight: 600;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            background: #f8f9fa;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(0);
+        }
+
+        #message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 500;
+            text-align: center;
+            display: none;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="skills-container">
+        <div class="header">
+            <h1>📊 Skills Evaluation</h1>
+            <p>Rate your proficiency in each skill</p>
+        </div>
+
+        <div class="user-email">
+            {{ user_email }}
+        </div>
+
+        <div class="skills-scroll-container" id="skillsContainer">
+            <!-- Skills will be populated by JavaScript -->
+        </div>
+
+        <div class="button-group">
+            <button class="btn-primary" onclick="handleSaveSkills()">💾 Save Skills</button>
+            <button class="btn-secondary" onclick="handleGoBack()">⬅️ Go Back</button>
+        </div>
+
+        <div id="message"></div>
+    </div>
+
+    <script>
+        // List of skills to evaluate
+        const skills = [
+            { name: 'Python', key: 'python' },
+            { name: 'Java', key: 'java' },
+            { name: 'JavaScript', key: 'javascript' },
+            { name: 'C++', key: 'cpp' },
+            { name: 'Go', key: 'go' },
+            { name: 'SQL', key: 'sql' },
+            { name: 'NoSQL', key: 'nosql' },
+            { name: 'AWS', key: 'aws' },
+            { name: 'Google Cloud', key: 'gcp' },
+            { name: 'Azure', key: 'azure' },
+            { name: 'Docker', key: 'docker' },
+            { name: 'Kubernetes', key: 'kubernetes' },
+            { name: 'System Design', key: 'system_design' },
+            { name: 'Problem Solving', key: 'problem_solving' },
+            { name: 'Communication', key: 'communication' }
+        ];
+
+        function getLevelLabel(value) {
+            value = parseInt(value);
+            if (value < 20) return 'Beginner';
+            if (value < 40) return 'Elementary';
+            if (value < 60) return 'Intermediate';
+            if (value < 80) return 'Advanced';
+            return 'Expert';
+        }
+
+        function populateSkills() {
+            const container = document.getElementById('skillsContainer');
+            skills.forEach(skill => {
+                const skillDiv = document.createElement('div');
+                skillDiv.className = 'skill-item';
+                skillDiv.innerHTML = `
+                    <div class="skill-name">${skill.name}</div>
+                    <div class="skill-input-container">
+                        <input type="range" min="0" max="100" value="0" class="skill-slider" 
+                               id="skill-${skill.key}" 
+                               onchange="updateSkillValue('${skill.key}', this.value)"
+                               oninput="updateSkillValue('${skill.key}', this.value)">
+                        <div class="skill-value" id="value-${skill.key}">0</div>
+                    </div>
+                    <div class="skill-level" id="level-${skill.key}">Beginner</div>
+                `;
+                container.appendChild(skillDiv);
+            });
+        }
+
+        function updateSkillValue(skillKey, value) {
+            document.getElementById(`value-${skillKey}`).textContent = value;
+            document.getElementById(`level-${skillKey}`).textContent = getLevelLabel(value);
+        }
+
+        function handleSaveSkills() {
+            const email = '{{ user_email }}';
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = '';
+            messageDiv.className = '';
+
+            // Collect all skill values
+            let formData = `email=${encodeURIComponent(email)}`;
+            skills.forEach(skill => {
+                const value = document.getElementById(`skill-${skill.key}`).value;
+                formData += `&${skill.key}=${encodeURIComponent(value)}`;
+            });
+
+            fetch('/save_skills', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                messageDiv.textContent = data.message;
+                if (data.success) {
+                    messageDiv.className = 'success';
+                    setTimeout(() => {
+                        window.location.href = `/home?user_email=${encodeURIComponent(email)}`;
+                    }, 1500);
+                } else {
+                    messageDiv.className = 'error';
+                }
+            })
+            .catch(error => {
+                messageDiv.textContent = 'An error occurred while saving skills.';
+                messageDiv.className = 'error';
+                console.error('Error:', error);
+            });
+        }
+
+        function handleGoBack() {
+            const email = '{{ user_email }}';
+            window.location.href = `/home?user_email=${encodeURIComponent(email)}`;
+        }
+
+        // Populate skills on page load
+        document.addEventListener('DOMContentLoaded', populateSkills);
+    </script>
+</body>
+</html>

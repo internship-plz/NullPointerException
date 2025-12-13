@@ -213,6 +213,22 @@
         </div>
 
         <div class="form-group">
+            <label for="name">👤 Full Name:</label>
+            <input type="text" id="name" name="name" placeholder="Your full name">
+        </div>
+
+        <div class="form-group" id="skills-group" style="display:none;">
+            <label>🧰 Initial Skills (optional):</label>
+            <div id="skills-list" style="display:flex;flex-direction:column;gap:12px;">
+                <!-- dynamic skill entries inserted here -->
+            </div>
+            <div style="margin-top:12px;display:flex;gap:10px;">
+                <button type="button" id="addSkillBtn" class="button-mini" style="padding:8px 12px;border-radius:6px;border:1px solid #e0e0e0;background:#f8f9fa;cursor:pointer">+ Add Skill</button>
+                <div style="font-size:0.85em;color:#888;align-self:center;">Each skill has a name and a slider (0-100).</div>
+            </div>
+        </div>
+
+        <div class="form-group">
             <label>👤 Select Role:</label>
             <div class="role-group">
                 <label>
@@ -233,6 +249,84 @@
     </div>
 
     <script>
+        // Toggle skills input visibility depending on selected role
+        function toggleSkillsVisibility() {
+            const selected = document.querySelector('input[name="role"]:checked');
+            const skillsGroup = document.getElementById('skills-group');
+            if (selected && selected.value === 'candidate') {
+                skillsGroup.style.display = '';
+            } else {
+                skillsGroup.style.display = 'none';
+            }
+        }
+
+        // Add a skill entry (name + slider + value + remove)
+        function addSkillEntry(name = '', value = 50) {
+            const list = document.getElementById('skills-list');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'skill-entry';
+            wrapper.style.display = 'flex';
+            wrapper.style.alignItems = 'center';
+            wrapper.style.gap = '12px';
+
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.className = 'skill-name';
+            nameInput.placeholder = 'Skill name';
+            nameInput.value = name;
+            nameInput.style.width = '35%';
+            nameInput.style.padding = '8px';
+            nameInput.style.border = '1px solid #e0e0e0';
+            nameInput.style.borderRadius = '6px';
+
+            const slider = document.createElement('input');
+            slider.type = 'range';
+            slider.min = 0;
+            slider.max = 100;
+            slider.value = value;
+            slider.className = 'skill-slider';
+            slider.style.flex = '1';
+
+            const valDiv = document.createElement('div');
+            valDiv.className = 'skill-value';
+            valDiv.style.minWidth = '50px';
+            valDiv.style.textAlign = 'center';
+            valDiv.style.fontWeight = '600';
+            valDiv.style.color = '#667eea';
+            valDiv.textContent = value;
+
+            slider.addEventListener('input', () => {
+                valDiv.textContent = slider.value;
+            });
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.textContent = 'Remove';
+            removeBtn.style.padding = '6px 10px';
+            removeBtn.style.borderRadius = '6px';
+            removeBtn.style.border = '1px solid #e0e0e0';
+            removeBtn.style.background = '#fff';
+            removeBtn.style.cursor = 'pointer';
+            removeBtn.addEventListener('click', () => wrapper.remove());
+
+            wrapper.appendChild(nameInput);
+            wrapper.appendChild(slider);
+            wrapper.appendChild(valDiv);
+            wrapper.appendChild(removeBtn);
+
+            list.appendChild(wrapper);
+        }
+
+        // attach listeners to role radios
+        document.querySelectorAll('input[name="role"]').forEach(r => r.addEventListener('change', toggleSkillsVisibility));
+        // initialize visibility on load and add a default entry
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleSkillsVisibility();
+            // add a default blank skill entry for convenience
+            addSkillEntry('', 50);
+            const addBtn = document.getElementById('addSkillBtn');
+            if (addBtn) addBtn.addEventListener('click', () => addSkillEntry('', 50));
+        });
         function handleAuth(action) {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
@@ -253,12 +347,29 @@
 
             const url = `/${action}`; 
             
-            // --- NEW: Include role in the POST body for account creation ---
+            // Build base body
             let requestBody = `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
             if (action === 'create_user') {
-                 requestBody += `&role=${encodeURIComponent(role)}`;
+                // include role and name. include skills only for candidates
+                const name = document.getElementById('name').value || '';
+                requestBody += `&role=${encodeURIComponent(role)}`;
+                requestBody += `&name=${encodeURIComponent(name)}`;
+                if (role === 'candidate') {
+                    // collect dynamic skill entries into an object
+                    const skillsObj = {};
+                    document.querySelectorAll('#skills-list .skill-entry').forEach(entry => {
+                        const nameInput = entry.querySelector('.skill-name');
+                        const slider = entry.querySelector('.skill-slider');
+                        if (nameInput && slider) {
+                            const key = nameInput.value.trim();
+                            const val = parseInt(slider.value, 10) || 0;
+                            if (key) skillsObj[key] = val;
+                        }
+                    });
+                    // send as JSON string
+                    requestBody += `&skills=${encodeURIComponent(JSON.stringify(skillsObj))}`;
+                }
             }
-            // --- END NEW ---
 
             fetch(url, {
                 method: 'POST',

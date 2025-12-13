@@ -7,5 +7,20 @@
             "python": 6,
             "javascript": 7
         }
+    },
+    "test@example.com": {
+        "password": "test",
+        "role": "employer",
+        "name": "Test Smith"
+    },
+    "test1@example.com": {
+        "password": "test",
+        "role": "candidate",
+        "name": "Test Smith",
+        "skills": {
+            "Java": 37,
+            "Python": 0,
+            "C++": 100
+        }
     }
 }
