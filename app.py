@@ -138,7 +138,7 @@ def create_user():
                     duplicates.append(normalized_name)
                     continue
                 try:
-                    normalized[normalized_name] = int(v)
+                    normalized[normalized_name] = float(v)
                 except Exception:
                     try:
                         normalized[normalized_name] = float(v)
