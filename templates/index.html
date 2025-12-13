@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login/Signup</title>
+    <title>Simple Auth Demo</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; border: 1px solid #ddd; }
         .form-group { margin-bottom: 15px; }
@@ -17,7 +17,7 @@
     </style>
 </head>
 <body>
-    <h1>User Authentication</h1>
+    <h1>User Authentication (Simple Demo)</h1>
 
     <div class="form-group">
         <label for="email">Email:</label>
@@ -30,18 +30,18 @@
     </div>
 
     <div class="button-group">
-        <button id="createBtn" onclick="handleAuth('create')">Create Account</button>
+        <button id="createBtn" onclick="handleAuth('create_user')">Create Account</button>
         <button id="signInBtn" onclick="handleAuth('sign_in')">Sign In</button>
     </div>
 
     <div id="message"></div>
 
     <div id="existing-users">
-        <h2>Existing Users:</h2>
+        <h2>Users Registered:</h2>
         {% if user_emails %}
-            <p>Users in data.json: <strong>{{ user_emails | join(', ') }}</strong></p>
+            <p>Emails in data.json: <strong>{{ user_emails | join(', ') }}</strong></p>
         {% else %}
-            <p>No users found in data.json. Please create an account.</p>
+            <p>No users found. Please create an account.</p>
         {% endif %}
     </div>
 
@@ -60,7 +60,6 @@
                 return;
             }
 
-            // Determine the URL based on the button clicked
             const url = `/${action}`; 
 
             fetch(url, {
@@ -71,7 +70,6 @@
                 body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
             })
             .then(response => {
-                // Flask returns a status code (e.g., 200 for success, 401 for error)
                 return response.json().then(data => ({
                     status: response.status,
                     data: data
@@ -81,16 +79,14 @@
                 messageDiv.textContent = data.message;
                 if (data.success) {
                     messageDiv.className = 'success';
-                    // Optional: If signing in, you might redirect the user here
-                    // if (action === 'sign_in') { window.location.href = '/dashboard'; }
                 } else {
                     messageDiv.className = 'error';
                 }
             })
             .catch(error => {
-                messageDiv.textContent = 'An unexpected error occurred.';
+                messageDiv.textContent = 'An unexpected network or client error occurred.';
                 messageDiv.className = 'error';
-                console.error('Error:', error);
+                console.error('Fetch Error:', error);
             });
         }
     </script>
