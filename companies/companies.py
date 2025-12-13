@@ -61,7 +61,9 @@ class Job:
         total_weight = sum(self.weights.values())
         if total_weight == 0:
             return 0.0
+
         match_score = 0.0
+
         for skill, weight in self.weights.items():
             candidate_skill_level = candidate_skills.get(skill, 0)
             try:
