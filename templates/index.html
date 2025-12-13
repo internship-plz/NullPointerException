@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Logger</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .button-container button { 
+            padding: 10px 20px; 
+            margin: 5px; 
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #history { 
+            margin-top: 20px; 
+            border: 1px solid #ccc; 
+            padding: 10px; 
+            max-height: 300px; 
+            overflow-y: scroll;
+        }
+    </style>
+</head>
+<body>
+    <h1>Click Logger Interface</h1>
+
+    <div class="button-container">
+        <button onclick="recordClick('Acknowledge')">Acknowledge Event</button>
+        <button onclick="recordClick('Resolve')">Resolve Issue</button>
+        <button onclick="recordClick('Flag')">Flag for Review</button>
+    </div>
+
+    <h2>Click History</h2>
+    <div id="history">
+        {% for entry in history | reverse %}
+            <p><strong>{{ entry.timestamp }}</strong>: {{ entry.message }}</p>
+        {% endfor %}
+    </div>
+
+    <script>
+        function recordClick(buttonName) {
+            // Use the Fetch API to send a POST request to the '/click' route
+            fetch('/click', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                // Send the button name as form data
+                body: `button_name=${encodeURIComponent(buttonName)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                // On successful response, dynamically update the history list
+                const historyDiv = document.getElementById('history');
+                const newEntry = document.createElement('p');
+                newEntry.innerHTML = `<strong>${data.timestamp}</strong>: ${data.message}`;
+                
+                // Add the new entry to the top of the history list
+                historyDiv.prepend(newEntry);
+                
+                console.log('Click recorded:', data);
+            })
+            .catch(error => console.error('Error recording click:', error));
+        }
+    </script>
+</body>
+</html>

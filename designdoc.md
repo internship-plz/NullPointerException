@@ -9,4 +9,3 @@
 - companies are provided an algorithm which customises the importance of different features of each candidate
 - can also pull information from github profiles
 - potential AI/ML application where the applicant or the employer receives suggestions for what to improve or prioritise.
-
