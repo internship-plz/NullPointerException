@@ -1,17 +1,2 @@
 [
-    {
-        "button": "Acknowledge",
-        "timestamp": "2025-12-13 12:56:10",
-        "message": "Button 'Acknowledge' was clicked."
-    },
-    {
-        "button": "Resolve",
-        "timestamp": "2025-12-13 12:56:25",
-        "message": "Button 'Resolve' was clicked."
-    },
-    {
-        "button": "Resolve",
-        "timestamp": "2025-12-13 12:56:25",
-        "message": "Button 'Resolve' was clicked."
-    }
 ]
