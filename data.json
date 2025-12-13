@@ -1,2 +1,12 @@
 [
+    {
+        "email": "oliverbao",
+        "password": "xiaotutu0",
+        "role": "Employer"
+    },
+    {
+        "email": "a",
+        "password": "a",
+        "role": "candidate"
+    }
 ]

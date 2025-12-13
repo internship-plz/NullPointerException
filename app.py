@@ -1,13 +1,15 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import json
 import os
+from services.service import Service
 
 # --- Configuration ---
 app = Flask(__name__)
 JSON_FILE = 'data.json'
 
-# --- JSON Utility Functions ---
+services = Service()
 
+# --- JSON Utility Functions (Unchanged) ---
 def load_users():
     """Loads existing user data from the JSON file."""
     if not os.path.exists(JSON_FILE):
@@ -34,28 +36,32 @@ def index():
 
 @app.route('/create_user', methods=['POST'])
 def create_user():
-    """Handles the account creation (Sign Up) process."""
+    """Handles the account creation (Sign Up) process, now including role."""
     email = request.form.get('email')
     password = request.form.get('password')
+    # --- NEW: Get the selected role from the form data ---
+    role = request.form.get('role') 
+    
     users = load_users()
 
-    if not email or not password:
-        return jsonify({'success': False, 'message': 'Email and Password are required.'}), 400
+    if not email or not password or not role:
+        # Check if role is missing too
+        return jsonify({'success': False, 'message': 'Email, Password, and Role are required.'}), 400
 
-    # Check if user already exists
     if any(user['email'] == email for user in users):
         return jsonify({'success': False, 'message': 'Account already exists with this email.'}), 409
         
-    # --- DANGER: Storing password in plain text ---
     new_user = {
         'email': email,
-        'password': password  
+        'password': password,
+        # --- NEW FIELD ---
+        'role': role  
     }
     
     users.append(new_user)
     save_users(users)
     
-    return jsonify({'success': True, 'message': f'Account for {email} created successfully!'})
+    return jsonify({'success': True, 'message': f'Account for {email} ({role}) created successfully!'})
 
 @app.route('/sign_in', methods=['POST'])
 def sign_in():
@@ -64,23 +70,25 @@ def sign_in():
     password = request.form.get('password')
     users = load_users()
 
-    # Search for a matching user by email
     match = next((user for user in users if user['email'] == email), None)
     
-    if match:
-        # --- DANGER: Comparing plain text password ---
-        if match['password'] == password:
-            return jsonify({'success': True, 'message': f'Sign In Successful! Welcome, {email}.'})
-        else:
-            # Generic error message for security
-            return jsonify({'success': False, 'message': 'Invalid email or password.'}), 401
+    if match and match['password'] == password:
+        # Pass the user's role to the home page route
+        home_url = url_for('home', user_email=email, user_role=match['role'])
+        return jsonify({'success': True, 'redirect': home_url, 'message': f'Sign In Successful! Redirecting...'})
     else:
-        # Generic error message for security
         return jsonify({'success': False, 'message': 'Invalid email or password.'}), 401
+
+@app.route('/home')
+def home():
+    """The new protected home page, now displaying the user's role."""
+    user_email = request.args.get('user_email', 'Guest')
+    # --- NEW: Get the user's role from the query string ---
+    user_role = request.args.get('user_role', 'Unknown')
+    return render_template('home.html', user_email=user_email, user_role=user_role)
 
 if __name__ == '__main__':
     if not os.path.exists(JSON_FILE):
         save_users([])
-        
-    # Running in debug mode for development
+
     app.run(debug=True)
