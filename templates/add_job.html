@@ -46,8 +46,15 @@
                 <input type="range" id="match_threshold" name="match_threshold" min="0" max="1" step="0.01" value="0.00" style="flex:1">
                 <div id="match_threshold_val" style="min-width:60px;text-align:center;font-weight:700">0.00</div>
             </div>
+            <label for="starting_pay" style="margin-top:12px">Base Salary ($)</label>
+            <input type="number" id="starting_pay" name="starting_pay" placeholder="e.g. 50000" min="0" step="1000" value="0" required>
 
-            <div class="row">
+            <label for="maximum_pay" style="margin-top:12px">Maximum Salary ($)</label>
+            <input type="number" id="maximum_pay" name="maximum_pay" placeholder="e.g. 150000" min="0" step="1000" value="0" required>
+
+            <div class="note" style="margin-top:8px">Salary scales based on candidate match: candidates exceeding the threshold receive <strong>base + (match_score × (max - base))</strong></div>
+
+            <div class="row" style="margin-top:20px;">
                 <button type="button" class="btn btn-primary" onclick="submitJob()">Create Job</button>
                 <button type="button" class="btn btn-secondary" onclick="goBack()">Cancel</button>
             </div>
@@ -113,6 +120,11 @@
             msg.style.display = 'none'; msg.textContent = '';
             if(!email || !title){ msg.style.display='block'; msg.textContent='Email and title are required.'; return }
 
+            const starting_pay = parseFloat(document.getElementById('starting_pay').value) || 0.0;
+            const maximum_pay = parseFloat(document.getElementById('maximum_pay').value) || 0.0;
+            if (starting_pay < 0) { msg.style.display='block'; msg.textContent='Base salary cannot be negative.'; return }
+            if (maximum_pay < starting_pay) { msg.style.display='block'; msg.textContent='Maximum salary must be >= base salary.'; return }
+
             // collect desired skills into an object
             const desired = {};
             document.querySelectorAll('#desired-skills .btn').forEach(()=>{}); // noop to ensure DOM is ready
@@ -135,6 +147,8 @@
             parts.push(`description=${encodeURIComponent(description)}`);
             parts.push(`desired_skills=${encodeURIComponent(JSON.stringify(desired))}`);
             parts.push(`match_threshold=${encodeURIComponent(parseFloat(match_threshold.toFixed(2)))}`);
+                        parts.push(`starting_pay=${encodeURIComponent(parseFloat(starting_pay.toFixed(2)))}`);
+                        parts.push(`maximum_pay=${encodeURIComponent(parseFloat(maximum_pay.toFixed(2)))}`);
             const body = parts.join('&');
 
             fetch('/company/create_job', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body })

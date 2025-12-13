@@ -12,7 +12,7 @@ class JobSupplier:
         companies = {}
 
         for user_id, user_info in users.items():
-            if user_info.get('role') == 'employer':
+            if user_info.get('role') in ('employer', 'company'):
                 company = Company(
                     company_id=user_id,
                     name=user_info.get('name', ''),
@@ -127,7 +127,8 @@ class Company:
         highest_bid_amount = 0.0
         for job in self.jobs:
             bid_amount = job.calculate_bid(candidate_skills)
-            if bid_amount >= self.match_threshold and bid_amount > highest_bid_amount:
+            # job.calculate_bid returns None when candidate does not meet job threshold
+            if bid_amount is not None and bid_amount > highest_bid_amount:
                 highest_bid_amount = bid_amount
                 highest_suitable_job = job
         return highest_suitable_job, highest_bid_amount

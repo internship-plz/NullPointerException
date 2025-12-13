@@ -32,12 +32,23 @@ class CandidateSupplier:
 
         for user_id, user_info in users.items():
             if user_info.get('role') == 'candidate':
+                raw_skills = user_info.get('skills', {})
+                # normalize skills to a dict mapping skill -> float
+                if isinstance(raw_skills, list):
+                    skills = {}
+                else:
+                    skills = raw_skills or {}
+
                 candidates[user_id] = Candidate(
                     candidate_id=user_id,
                     name=user_info.get('name', ''),
-                    skills=user_info.get('skills', []),
+                    skills=skills,
                     bids=user_info.get('bids', {})
                 )
+
+        # store and return candidates mapping
+        self.candidates = candidates
+        return candidates
 
 
     def add_candidate(self, candidate_id: str, password: str, name: str, skills: list):
@@ -56,8 +67,12 @@ class CandidateSupplier:
 
     def get_candidate_skills(self, candidate_id: str):
         candidate = self.candidates.get(candidate_id)
-        
-        return candidate.skills
+        if not candidate:
+            return {}
+        # ensure skills is a dict
+        if isinstance(candidate.skills, dict):
+            return candidate.skills
+        return {}
     
 
     def add_bid_offers(self, candidate_id: str, bids: dict):

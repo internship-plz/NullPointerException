@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Job Listings</title>
+    <title>Job Search Results</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box }
         body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; padding:20px }
@@ -26,48 +26,137 @@
         .empty { background:white; border-radius:12px; padding:60px 40px; text-align:center; box-shadow:0 5px 20px rgba(0,0,0,0.1) }
         .empty h2 { color:#666; margin-bottom:15px }
         .empty p { color:#999; margin-bottom:20px }
+        .bid-badge { background:#28a745; color:white; padding:8px 12px; border-radius:8px; font-weight:700; font-size:0.9em; margin-top:10px }
+        .no-bid-badge { background:#ffc107; color:#333; padding:8px 12px; border-radius:8px; font-weight:700; font-size:0.9em; margin-top:10px }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📖 Available Job Listings</h1>
-            <div class="user-info">Candidate: <strong>{{ user_email }}</strong></div>
+            <h1>📊 Job Search Results</h1>
+            <div class="user-info">Candidate: <strong id="candidateEmail">{{ user_email }}</strong></div>
             <div class="button-group">
-                <button class="btn btn-secondary" onclick="window.location.href='/home?user_email={{ user_email }}&user_role=candidate'">← Back to Dashboard</button>
+                <button class="btn btn-secondary" onclick="goBack()">← Back to Dashboard</button>
             </div>
         </div>
 
-        {% if all_jobs %}
-            <div class="jobs-list">
-                {% for job in all_jobs %}
-                    <div class="job-card">
-                        <div style="display:flex;justify-content:space-between;align-items:center">
-                            <div>
-                                <div class="job-title">{{ job.title }}</div>
-                                <div class="job-company">{{ job.company_name }}</div>
-                            </div>
-                            <div style="text-align:right">
-                                {% if job._meets %}
-                                    <div style="background:#d4edda;color:#155724;padding:6px 10px;border-radius:8px;font-weight:700">Meets Threshold</div>
-                                {% else %}
-                                    <div style="background:#f8d7da;color:#721c24;padding:6px 10px;border-radius:8px;font-weight:700">Below Threshold</div>
-                                {% endif %}
-                                <div style="font-size:0.8em;color:#666;margin-top:6px">Score: {{ '%.2f'|format(job._match_score) }}</div>
-                            </div>
+        <div id="jobsContainer"></div>
+
+        <script>
+            const candidateEmail = '{{ user_email }}';
+
+            // Try to load jobs from sessionStorage (set by job_search call)
+            let jobsData = null;
+            try {
+                const stored = sessionStorage.getItem(`jobSearch_${candidateEmail}`);
+                if (stored) {
+                    jobsData = JSON.parse(stored);
+                    sessionStorage.removeItem(`jobSearch_${candidateEmail}`);
+                }
+            } catch (e) {
+                console.error('Error loading from sessionStorage:', e);
+            }
+
+            function renderJobs(jobs) {
+                const container = document.getElementById('jobsContainer');
+            
+                if (!jobs || jobs.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty">
+                            <h2>🔍 No jobs found</h2>
+                            <p>No job opportunities are available at the moment.</p>
+                            <button class="btn btn-primary" onclick="goBack()">← Back to Dashboard</button>
                         </div>
-                        <div class="job-description" style="margin-top:12px">{{ job.description }}</div>
-                        <div class="job-id">Job ID: {{ job.job_id[:8] }}...</div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="empty">
-                <h2>🔍 No job listings available</h2>
-                <p>Check back later for new opportunities.</p>
-                <button class="btn btn-primary" onclick="window.location.href='/home?user_email={{ user_email }}&user_role=candidate'">← Back to Dashboard</button>
-            </div>
-        {% endif %}
+                    `;
+                    return;
+                }
+
+                // Separate jobs by bid status
+                const jobsWithBids = jobs.filter(j => j._meets && j._bid_amount !== null && j._bid_amount !== undefined);
+                const jobsWithoutBids = jobs.filter(j => j._meets && (j._bid_amount === null || j._bid_amount === undefined));
+                const jobsBelowThreshold = jobs.filter(j => !j._meets);
+
+                let html = '';
+
+                if (jobsWithBids.length > 0) {
+                    html += '<h2 style="color:#333;margin-bottom:20px">🏆 Companies Bidding on You</h2>';
+                    html += '<div class="jobs-list">';
+                    jobsWithBids.forEach(job => {
+                        html += `
+                            <div class="job-card">
+                                <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                                    <div style="flex:1">
+                                        <div class="job-title">${job.title}</div>
+                                        <div class="job-company">${job.company_name}</div>
+                                    </div>
+                                    <div style="text-align:right">
+                                        <div style="background:#d4edda;color:#155724;padding:6px 10px;border-radius:8px;font-weight:700;font-size:0.9em">Matches!</div>
+                                        <div style="font-size:0.8em;color:#666;margin-top:6px">Score: ${job._match_score.toFixed(2)}</div>
+                                    </div>
+                                </div>
+                                <div class="job-description">${job.description}</div>
+                                <div class="bid-badge">💰 Offer: $${job._bid_amount.toFixed(2)}</div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                if (jobsWithoutBids.length > 0) {
+                    html += '<h2 style="color:#333;margin-bottom:20px;margin-top:30px">✅ Jobs You Qualify For (No Bid Yet)</h2>';
+                    html += '<div class="jobs-list">';
+                    jobsWithoutBids.forEach(job => {
+                        html += `
+                            <div class="job-card">
+                                <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                                    <div style="flex:1">
+                                        <div class="job-title">${job.title}</div>
+                                        <div class="job-company">${job.company_name}</div>
+                                    </div>
+                                    <div style="text-align:right">
+                                        <div style="background:#d4edda;color:#155724;padding:6px 10px;border-radius:8px;font-weight:700;font-size:0.9em">Matches!</div>
+                                        <div style="font-size:0.8em;color:#666;margin-top:6px">Score: ${job._match_score.toFixed(2)}</div>
+                                    </div>
+                                </div>
+                                <div class="job-description">${job.description}</div>
+                                <div class="no-bid-badge">⏳ Waiting for bid...</div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                if (jobsBelowThreshold.length > 0) {
+                    html += '<h2 style="color:#333;margin-bottom:20px;margin-top:30px">📈 Jobs Below Your Threshold</h2>';
+                    html += '<div style="background:white;border-radius:12px;padding:20px;box-shadow:0 5px 20px rgba(0,0,0,0.1)">';
+                    html += `<p style="color:#666">You don't quite match ${jobsBelowThreshold.length} job(s). Consider improving your skills or check back later.</p>`;
+                    html += '</div>';
+                }
+
+                container.innerHTML = html;
+            }
+
+            function goBack() {
+                window.location.href = `/home?user_email=${encodeURIComponent(candidateEmail)}&user_role=candidate`;
+            }
+
+            // If sessionStorage search data exists, use it. Otherwise fall back to server-provided jobs.
+            let serverJobs = null;
+            try {
+                serverJobs = {{ all_jobs | tojson | default('null') }};
+            } catch (e) {
+                serverJobs = null;
+            }
+
+            if (jobsData && jobsData.all_jobs) {
+                renderJobs(jobsData.all_jobs);
+            } else if (serverJobs && Array.isArray(serverJobs)) {
+                renderJobs(serverJobs);
+            } else {
+                document.getElementById('jobsContainer').innerHTML = '<p style="text-align:center;color:#666">Loading job search results...</p>';
+                renderJobs([]);
+            }
+        </script>
     </div>
 </body>
 </html>

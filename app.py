@@ -327,6 +327,9 @@ def company_create_job():
     desired_skills_raw = request.form.get('desired_skills', '').strip()
     match_threshold_raw = (request.form.get('match_threshold') or '').strip()
 
+    # Parse salary fields
+    starting_pay_raw = (request.form.get('starting_pay') or '0').strip()
+    maximum_pay_raw = (request.form.get('maximum_pay') or '0').strip()
     if not company_id or not title:
         return jsonify({'success': False, 'message': 'Company email and job title are required.'}), 400
 
@@ -404,6 +407,25 @@ def company_create_job():
     except Exception:
         match_threshold = 0.0
 
+    # Parse and validate salary fields
+    starting_pay = 0.0
+    maximum_pay = 0.0
+    try:
+        if starting_pay_raw:
+            starting_pay = float(starting_pay_raw)
+            if starting_pay < 0.0: starting_pay = 0.0
+    except Exception:
+        starting_pay = 0.0
+    try:
+        if maximum_pay_raw:
+            maximum_pay = float(maximum_pay_raw)
+            if maximum_pay < 0.0: maximum_pay = 0.0
+    except Exception:
+        maximum_pay = 0.0
+
+    # Ensure maximum_pay >= starting_pay
+    if maximum_pay < starting_pay:
+        maximum_pay = starting_pay
     # Create job with minimal defaults
     job_id = str(uuid.uuid4())
     job_data = {
@@ -412,8 +434,8 @@ def company_create_job():
         'description': description,
         'weights': weights,
         'match_threshold': match_threshold,
-        'maximum_pay': 0.0,
-        'starting_pay': 0.0
+        'maximum_pay': round(maximum_pay, 2),
+        'starting_pay': round(starting_pay, 2)
     }
 
     users[company_id]['jobs'].append(job_data)
@@ -470,9 +492,27 @@ def job_listings():
 
                         job_with_company['_match_score'] = match_score
                         job_with_company['_meets'] = (match_score > float(job_with_company.get('match_threshold', 0)))
+                        
+                        # Compute bid amount if candidate meets threshold
+                        match_threshold = float(job_with_company.get('match_threshold', 0))
+                        if match_score > match_threshold:
+                            starting_pay = float(job_with_company.get('starting_pay', 0))
+                            maximum_pay = float(job_with_company.get('maximum_pay', 0))
+                            if maximum_pay > starting_pay:
+                                # Scale salary: starting_pay + (match_score * (maximum_pay - starting_pay))
+                                bid_amount = starting_pay + (match_score * (maximum_pay - starting_pay))
+                                job_with_company['_bid_amount'] = round(bid_amount, 2)
+                            elif maximum_pay >= starting_pay:
+                                # If max == start, use starting_pay as bid
+                                job_with_company['_bid_amount'] = round(starting_pay, 2)
+                            else:
+                                job_with_company['_bid_amount'] = None
+                        else:
+                            job_with_company['_bid_amount'] = None
                     except Exception:
                         job_with_company['_match_score'] = 0.0
                         job_with_company['_meets'] = False
+                        job_with_company['_bid_amount'] = None
 
                     all_jobs.append(job_with_company)
 
@@ -481,16 +521,73 @@ def job_listings():
 
 @app.route('/job_search', methods=['POST'])
 def job_search():
-    """Handles the job search request by calling the service's job_search method."""
+    """Handles the job search request: computes bids for a candidate across all available jobs."""
     email = request.form.get('email')
     
     if not email:
         return jsonify({'success': False, 'message': 'Email is required.'}), 400
     
     try:
-        # Call the service's job_search method
-        results = services.job_search(email)
-        return jsonify({'success': True, 'message': 'Job search completed successfully!', 'results': results})
+        # Get candidate skills
+        candidate_skills = services.candidate_supplier.get_candidate_skills(email) or {}
+        
+        # Load users to get all jobs and company info
+        users_file = 'data/users.json'
+        all_jobs = []
+        
+        if not os.path.exists(users_file):
+            return jsonify({'success': True, 'message': 'Job search completed successfully!', 'user_email': email, 'all_jobs': []})
+        
+        with open(users_file, 'r') as f:
+            try:
+                users = json.load(f)
+            except json.JSONDecodeError:
+                return jsonify({'success': True, 'message': 'Job search completed successfully!', 'user_email': email, 'all_jobs': []})
+        
+        # Collect all jobs from all employers and compute match scores + bids
+        for company_email, company_info in users.items():
+            role = company_info.get('role', '').lower()
+            if role in ('company', 'employer'):
+                jobs = company_info.get('jobs', [])
+                for job in jobs:
+                    job_with_company = dict(job)
+                    job_with_company['company_email'] = company_email
+                    job_with_company['company_name'] = company_info.get('name', company_email)
+                    
+                    # Compute match score
+                    weights = job_with_company.get('weights', {}) or {}
+                    total_weight = sum(weights.values())
+                    match_score = 0.0
+                    if total_weight > 0:
+                        for skill, weight in weights.items():
+                            cand_level = float(candidate_skills.get(skill, 0)) if isinstance(candidate_skills, dict) else 0.0
+                            match_score += (cand_level * float(weight))
+                        match_score = match_score / total_weight
+                    else:
+                        match_score = 1.0
+                    
+                    job_with_company['_match_score'] = match_score
+                    match_threshold = float(job_with_company.get('match_threshold', 0))
+                    job_with_company['_meets'] = (match_score > match_threshold)
+                    print(match_score, match_threshold, job_with_company['_meets'])
+                    
+                    # Compute bid amount if candidate meets threshold
+                    starting_pay = float(job_with_company.get('starting_pay', 0))
+                    maximum_pay = float(job_with_company.get('maximum_pay', 0))
+                    
+                    if job_with_company['_meets'] and maximum_pay > starting_pay:
+                        # Scale salary: starting_pay + (match_score * (maximum_pay - starting_pay))
+                        bid_amount = starting_pay + (match_score * (maximum_pay - starting_pay))
+                        job_with_company['_bid_amount'] = round(bid_amount, 2)
+                    elif job_with_company['_meets']:
+                        # If max <= start, just use starting_pay as bid
+                        job_with_company['_bid_amount'] = round(starting_pay, 2)
+                    else:
+                        job_with_company['_bid_amount'] = None
+                    
+                    all_jobs.append(job_with_company)
+        
+        return jsonify({'success': True, 'message': 'Job search completed successfully!', 'user_email': email, 'all_jobs': all_jobs})
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error during job search: {str(e)}'}), 500
 

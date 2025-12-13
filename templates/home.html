@@ -173,7 +173,7 @@
         </div>
 
         <div class="main-button-container">
-            <button class="btn-primary" onclick="handleJobSearch()">🔍 Job Search</button>
+            <button class="btn-primary" onclick="handleJobSearchWithRedirect()">🔍 Job Search</button>
         </div>
 
         <div class="secondary-buttons">
@@ -225,6 +225,52 @@
                 messageDiv.className = 'error';
                 console.error('Error:', error);
             });
+                }
+
+                function handleJobSearchWithRedirect() {
+                    const messageDiv = document.getElementById('message');
+                    messageDiv.textContent = '';
+                    messageDiv.className = '';
+
+                    const email = '{{ user_email }}';
+            
+                    fetch('/job_search', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `email=${encodeURIComponent(email)}`
+                    })
+                    .then(response => {
+                        return response.json().then(data => ({
+                            status: response.status,
+                            data: data
+                        }));
+                    })
+                    .then(({ status, data }) => {
+                        if (data.success) {
+                            messageDiv.textContent = data.message;
+                            messageDiv.className = 'success';
+                            // Store search results in sessionStorage for job_listings page
+                            try {
+                                sessionStorage.setItem(`jobSearch_${email}`, JSON.stringify(data));
+                            } catch (e) {
+                                console.warn('Could not store in sessionStorage:', e);
+                            }
+                            // Redirect to job_listings to display bids
+                            setTimeout(() => {
+                                window.location.href = `/job_listings?user_email=${encodeURIComponent(email)}`;
+                            }, 1000);
+                        } else {
+                            messageDiv.textContent = data.message;
+                            messageDiv.className = 'error';
+                        }
+                    })
+                    .catch(error => {
+                        messageDiv.textContent = 'An error occurred during job search.';
+                        messageDiv.className = 'error';
+                        console.error('Error:', error);
+                    });
         }
 
         function handleAbout() {

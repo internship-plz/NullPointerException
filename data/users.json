@@ -6,6 +6,11 @@
         "skills": {
             "Python": 0.6,
             "JavaScript": 0.7
+        },
+        "bids": {
+            "702174aa-c24c-49ea-9c0c-66f6f8a31e83": 22000.0,
+            "de549bfb-6495-41ab-a1fa-d0fde761c2d9": 96000.0,
+            "6f0ac98d-9ada-4cc9-ab3c-41d701875745": 350600.0
         }
     },
     "test@example.com": {
@@ -42,6 +47,17 @@
                 "match_threshold": 0.0,
                 "maximum_pay": 0.0,
                 "starting_pay": 0.0
+            },
+            {
+                "job_id": "de549bfb-6495-41ab-a1fa-d0fde761c2d9",
+                "title": "Python Dev (test)",
+                "description": "Test job for Python",
+                "weights": {
+                    "Python": 1.0
+                },
+                "match_threshold": 0.2,
+                "maximum_pay": 120000.0,
+                "starting_pay": 60000.0
             }
         ]
     },
@@ -142,6 +158,183 @@
         "skills": {
             "Haskell": 1,
             "Lua": 1
+        }
+    },
+    "oliverbao": {
+        "password": "xiaotutu0",
+        "role": "employer",
+        "jobs": [
+            {
+                "job_id": "702174aa-c24c-49ea-9c0c-66f6f8a31e83",
+                "title": "THis is a job",
+                "description": "testjobs",
+                "weights": {
+                    "Python": 0.54
+                },
+                "match_threshold": 0.22,
+                "maximum_pay": 30000.0,
+                "starting_pay": 10000.0
+            }
+        ]
+    },
+    "newuser": {
+        "password": "new",
+        "role": "candidate",
+        "name": "user",
+        "skills": {
+            "Python": 0
+        }
+    },
+    "test": {
+        "password": "another ",
+        "role": "candidate",
+        "name": "1",
+        "skills": {
+            "Python": 1
+        }
+    },
+    "s": {
+        "password": "xiaotutu0",
+        "role": "candidate",
+        "name": "s",
+        "skills": {
+            "Python": 1
+        }
+    },
+    "af": {
+        "password": "asdfxiaotutu0",
+        "role": "employer",
+        "name": "sf",
+        "jobs": [
+            {
+                "job_id": "8f3039a8-6efe-42b6-a081-2b3e1990354e",
+                "title": "sadf",
+                "description": "dsf",
+                "weights": {
+                    "Java": 0.21
+                },
+                "match_threshold": 0.07,
+                "maximum_pay": 230000.0,
+                "starting_pay": 20000.0
+            }
+        ]
+    },
+    "asf": {
+        "password": "xiaotutu0",
+        "role": "candidate",
+        "name": "asd",
+        "skills": {
+            "Java": 0
+        }
+    },
+    "t10": {
+        "password": "120",
+        "role": "employer",
+        "name": "sdaklfj",
+        "jobs": [
+            {
+                "job_id": "6f0ac98d-9ada-4cc9-ab3c-41d701875745",
+                "title": "test jobs",
+                "description": "this is another test",
+                "weights": {
+                    "JavaScript": 0.92
+                },
+                "match_threshold": 0.18,
+                "maximum_pay": 500000.0,
+                "starting_pay": 2000.0
+            }
+        ]
+    },
+    "te101": {
+        "password": "xiaotutu0dgfdasf",
+        "role": "candidate",
+        "name": "adf",
+        "skills": {
+            "JavaScript": 1
+        }
+    },
+    "oliverbaoasdf": {
+        "password": "xiaotutu0asdf",
+        "role": "candidate",
+        "name": "adsf",
+        "skills": {
+            "JavaScript": 0
+        }
+    },
+    "dsafkklasdfjklaj;s": {
+        "password": "sadf",
+        "role": "employer",
+        "name": "asdf",
+        "jobs": [
+            {
+                "job_id": "a0c75e0a-c00c-4334-853e-e4c58463e396",
+                "title": "adsf",
+                "description": "dsaf",
+                "weights": {
+                    "C#": 0.39
+                },
+                "match_threshold": 0.09,
+                "maximum_pay": 120312030.0,
+                "starting_pay": 1200.0
+            }
+        ]
+    },
+    "dsafkoj": {
+        "password": "asdfxiaotutu0",
+        "role": "candidate",
+        "name": "asdf",
+        "skills": {
+            "C#": 0
+        }
+    },
+    "oliverbaosadf": {
+        "password": "xiaotutu0",
+        "role": "candidate",
+        "skills": {
+            "C#": 1
+        }
+    },
+    "fadsdf": {
+        "password": "dsalkfjkj",
+        "role": "employer",
+        "name": "dsf",
+        "jobs": [
+            {
+                "job_id": "79febf85-a192-4b1b-ab16-29ac7968c59f",
+                "title": "asfd",
+                "description": "asdfasdgadsg",
+                "weights": {
+                    "Haskell": 0.75
+                },
+                "match_threshold": 0.55,
+                "maximum_pay": 500000.0,
+                "starting_pay": 100.0
+            }
+        ]
+    },
+    "oliverbaodsf": {
+        "password": "dsafxiaotutu0",
+        "role": "candidate",
+        "name": "dsf",
+        "skills": {
+            "Haskell": 0,
+            "Lua": 0
+        }
+    },
+    "oliverbaoasdfadsf": {
+        "password": "xiaotutu0",
+        "role": "candidate",
+        "name": "adf",
+        "skills": {
+            "Haskell": 0
+        }
+    },
+    "oliverbaodfggf": {
+        "password": "xiaotutu0",
+        "role": "candidate",
+        "name": "12",
+        "skills": {
+            "Haskell": 1
         }
     }
 }
