@@ -12,9 +12,11 @@ class Service:
 
 
     def job_search(self, candidate_id: str):
-        return self.job_supplier.get_bids_for_candidate(
+        bids = self.job_supplier.get_bids_for_candidate(
             self.candidate_supplier.get_candidate_skills(candidate_id)
         )
+        self.candidate_supplier.add_bid_offers(candidate_id, bids)
+        return bids
 
 
     def add_job(self, company_id: str, job_id: str, title: str, description: str, weights: dict, match_threshold: float, maximum_pay: float, starting_pay: float):

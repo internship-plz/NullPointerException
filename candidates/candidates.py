@@ -1,5 +1,24 @@
 import json
 
+class Candidate:
+    def __init__(self, candidate_id: str, name: str, skills: list, bids: dict):
+        self.candidate_id = candidate_id
+        self.name = name
+        self.skills = skills
+        self.bids = bids
+
+
+    def add_bid_offers(self, bids: dict):
+        self.bids.update(bids)
+
+        with open('data/users.json', 'r') as f:
+            users = json.load(f)
+        if self.candidate_id in users:
+            users[self.candidate_id]['bids'] = self.bids
+        with open('data/users.json', 'w') as f:
+                json.dump(users, f, indent=4)
+
+
 class CandidateSupplier:
     def __init__(self):
         self.candidates = self.load_candidates()
@@ -16,7 +35,8 @@ class CandidateSupplier:
                 candidates[user_id] = Candidate(
                     candidate_id=user_id,
                     name=user_info.get('name', ''),
-                    skills=user_info.get('skills', [])
+                    skills=user_info.get('skills', []),
+                    bids=user_info.get('bids', {})
                 )
 
 
@@ -38,10 +58,9 @@ class CandidateSupplier:
         candidate = self.candidates.get(candidate_id)
         
         return candidate.skills
+    
 
-
-class Candidate:
-    def __init__(self, candidate_id: str, name: str, skills: list):
-        self.candidate_id = candidate_id
-        self.name = name
-        self.skills = skills
+    def add_bid_offers(self, candidate_id: str, bids: dict):
+        candidate = self.candidates.get(candidate_id)
+        if candidate:
+            candidate.add_bid_offers(bids)
