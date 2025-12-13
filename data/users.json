@@ -347,5 +347,13 @@
         "skills": {
             "Haskell": 0
         }
+    },
+    "hi": {
+        "password": "hihi",
+        "role": "candidate",
+        "name": "Hi",
+        "skills": {
+            "Haskell": 0.87
+        }
     }
 }

@@ -96,7 +96,7 @@ def create_user():
                 if isinstance(parsed, dict):
                     for k, v in parsed.items():
                         try:
-                            skills_dict[k] = int(v)
+                            skills_dict[k] = float(v)
                         except Exception:
                             try:
                                 skills_dict[k] = float(v)
