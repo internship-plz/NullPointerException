@@ -42,9 +42,21 @@
             <div class="jobs-list">
                 {% for job in all_jobs %}
                     <div class="job-card">
-                        <div class="job-title">{{ job.title }}</div>
-                        <div class="job-company">{{ job.company_name }}</div>
-                        <div class="job-description">{{ job.description }}</div>
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div>
+                                <div class="job-title">{{ job.title }}</div>
+                                <div class="job-company">{{ job.company_name }}</div>
+                            </div>
+                            <div style="text-align:right">
+                                {% if job._meets %}
+                                    <div style="background:#d4edda;color:#155724;padding:6px 10px;border-radius:8px;font-weight:700">Meets Threshold</div>
+                                {% else %}
+                                    <div style="background:#f8d7da;color:#721c24;padding:6px 10px;border-radius:8px;font-weight:700">Below Threshold</div>
+                                {% endif %}
+                                <div style="font-size:0.8em;color:#666;margin-top:6px">Score: {{ '%.2f'|format(job._match_score) }}</div>
+                            </div>
+                        </div>
+                        <div class="job-description" style="margin-top:12px">{{ job.description }}</div>
                         <div class="job-id">Job ID: {{ job.job_id[:8] }}...</div>
                     </div>
                 {% endfor %}

@@ -32,6 +32,21 @@
             <label for="description" style="margin-top:12px">Short Description</label>
             <textarea id="description" name="description" placeholder="A short summary of the role (2-3 sentences)"></textarea>
 
+            <label style="margin-top:12px">Desired Skills (optional)</label>
+            <div id="desired-skills" style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
+                <!-- dynamic desired skills entries -->
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px">
+                <button type="button" id="addDesiredSkill" class="btn btn-secondary">+ Add Desired Skill</button>
+                <div style="font-size:0.9em;color:#666">Each desired skill includes a importance (weight) from 0.00 to 1.00.</div>
+            </div>
+
+            <label for="match_threshold">Match Threshold (0.00 - 1.00)</label>
+            <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+                <input type="range" id="match_threshold" name="match_threshold" min="0" max="1" step="0.01" value="0.00" style="flex:1">
+                <div id="match_threshold_val" style="min-width:60px;text-align:center;font-weight:700">0.00</div>
+            </div>
+
             <div class="row">
                 <button type="button" class="btn btn-primary" onclick="submitJob()">Create Job</button>
                 <button type="button" class="btn btn-secondary" onclick="goBack()">Cancel</button>
@@ -42,6 +57,54 @@
     </div>
 
     <script>
+        const allowedSkills = {{ allowed_skills|tojson }};
+
+        function createDesiredSkillEntry(name = '', value = 0.5){
+            const container = document.createElement('div');
+            container.style.display = 'flex';
+            container.style.gap = '8px';
+            container.style.alignItems = 'center';
+
+            const select = document.createElement('select');
+            select.style.padding = '8px';
+            select.style.minWidth = '200px';
+            const placeholder = document.createElement('option'); placeholder.value = ''; placeholder.textContent = 'Select skill...'; select.appendChild(placeholder);
+            allowedSkills.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; if(s===name) o.selected = true; select.appendChild(o)});
+
+            const slider = document.createElement('input'); slider.type='range'; slider.min=0; slider.max=1; slider.step=0.01; slider.value = value; slider.style.flex='1';
+            const val = document.createElement('div'); val.style.minWidth='60px'; val.style.textAlign='center'; val.style.fontWeight='700'; val.textContent = parseFloat(value).toFixed(2);
+            slider.addEventListener('input', ()=> val.textContent = parseFloat(slider.value).toFixed(2));
+
+            const remove = document.createElement('button'); remove.type='button'; remove.className='btn btn-secondary'; remove.textContent='Remove'; remove.onclick = ()=>{ container.remove(); updateDesiredOptions(); };
+
+            select.addEventListener('change', updateDesiredOptions);
+
+            container.appendChild(select); container.appendChild(slider); container.appendChild(val); container.appendChild(remove);
+            return container;
+        }
+
+        function updateDesiredOptions(){
+            const selects = Array.from(document.querySelectorAll('#desired-skills select'));
+            const values = selects.map(s=>s.value).filter(v=>v);
+            selects.forEach(s=>{ const cur = s.value; Array.from(s.options).forEach(opt=>{ if(!opt.value) return; opt.disabled = (opt.value !== cur) && values.includes(opt.value); }) });
+            const addBtn = document.getElementById('addDesiredSkill'); if(addBtn) addBtn.disabled = (document.querySelectorAll('#desired-skills select').length >= allowedSkills.length);
+        }
+
+        document.addEventListener('DOMContentLoaded', ()=>{
+            const list = document.getElementById('desired-skills');
+            list.appendChild(createDesiredSkillEntry('',0.5));
+            document.getElementById('addDesiredSkill').addEventListener('click', ()=>{ if(document.querySelectorAll('#desired-skills select').length < allowedSkills.length) { list.appendChild(createDesiredSkillEntry('',0.5)); updateDesiredOptions(); } });
+            setTimeout(updateDesiredOptions,0);
+        });
+        // update displayed threshold value
+        const thresholdSlider = document.getElementById('match_threshold');
+        const thresholdVal = document.getElementById('match_threshold_val');
+        if (thresholdSlider && thresholdVal) {
+            thresholdSlider.addEventListener('input', () => {
+                thresholdVal.textContent = parseFloat(thresholdSlider.value).toFixed(2);
+            });
+        }
+
         function submitJob(){
             const email = document.getElementById('email').value;
             const title = document.getElementById('title').value.trim();
@@ -50,7 +113,30 @@
             msg.style.display = 'none'; msg.textContent = '';
             if(!email || !title){ msg.style.display='block'; msg.textContent='Email and title are required.'; return }
 
-            const body = `email=${encodeURIComponent(email)}&title=${encodeURIComponent(title)}&description=${encodeURIComponent(description)}`;
+            // collect desired skills into an object
+            const desired = {};
+            document.querySelectorAll('#desired-skills .btn').forEach(()=>{}); // noop to ensure DOM is ready
+            const entries = Array.from(document.querySelectorAll('#desired-skills > div'));
+            entries.forEach(entry => {
+                const sel = entry.querySelector('select');
+                const slider = entry.querySelector('input[type="range"]');
+                if (sel && sel.value) {
+                    let wt = parseFloat(slider.value) || 0.0;
+                    if (wt < 0) wt = 0.0; if (wt > 1) wt = 1.0;
+                    desired[sel.value] = parseFloat(wt.toFixed(2));
+                }
+            });
+
+            const match_threshold = parseFloat(document.getElementById('match_threshold').value) || 0.0;
+
+            const parts = [];
+            parts.push(`email=${encodeURIComponent(email)}`);
+            parts.push(`title=${encodeURIComponent(title)}`);
+            parts.push(`description=${encodeURIComponent(description)}`);
+            parts.push(`desired_skills=${encodeURIComponent(JSON.stringify(desired))}`);
+            parts.push(`match_threshold=${encodeURIComponent(parseFloat(match_threshold.toFixed(2)))}`);
+            const body = parts.join('&');
+
             fetch('/company/create_job', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body })
             .then(r=>r.json())
             .then(data=>{

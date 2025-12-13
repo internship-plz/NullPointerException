@@ -82,5 +82,66 @@
         "password": "anothertest2",
         "role": "candidate",
         "name": "testing5"
+    },
+    "test6": {
+        "password": "test",
+        "role": "employer",
+        "name": "test6",
+        "jobs": [
+            {
+                "job_id": "bf66bc70-2a20-4ada-90e5-26dddf998ce7",
+                "title": "cpp dev",
+                "description": "testing for skills requirements",
+                "weights": {},
+                "match_threshold": 0.0,
+                "maximum_pay": 0.0,
+                "starting_pay": 0.0
+            }
+        ]
+    },
+    "test7": {
+        "password": "user7",
+        "role": "candidate",
+        "name": "adfskjl",
+        "skills": {
+            "Lua": 0,
+            "Rust": 0
+        }
+    },
+    "test8": {
+        "password": "test8",
+        "role": "employer",
+        "name": "testing8",
+        "jobs": [
+            {
+                "job_id": "676dba4a-a0c7-4373-a9ae-105a3567c3fc",
+                "title": "python dev",
+                "description": "this is a test",
+                "weights": {
+                    "Haskell": 0.76,
+                    "Lua": 0.28
+                },
+                "match_threshold": 0.94,
+                "maximum_pay": 0.0,
+                "starting_pay": 0.0
+            }
+        ]
+    },
+    "test9": {
+        "password": "test",
+        "role": "candidate",
+        "name": "test9",
+        "skills": {
+            "Perl": 0
+        }
+    },
+    "test10": {
+        "password": "test",
+        "role": "candidate",
+        "name": "sdlkj",
+        "skills": {
+            "Haskell": 1,
+            "Lua": 1
+        }
     }
 }

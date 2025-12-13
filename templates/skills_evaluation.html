@@ -290,11 +290,11 @@
                 skillDiv.innerHTML = `
                     <div class="skill-name">${skill.name}</div>
                     <div class="skill-input-container">
-                        <input type="range" min="0" max="100" value="0" class="skill-slider" 
+                           <input type="range" min="0" max="1" step="0.01" value="0" class="skill-slider" 
                                id="skill-${skill.key}" 
                                onchange="updateSkillValue('${skill.key}', this.value)"
                                oninput="updateSkillValue('${skill.key}', this.value)">
-                        <div class="skill-value" id="value-${skill.key}">0</div>
+                           <div class="skill-value" id="value-${skill.key}">0.00</div>
                     </div>
                     <div class="skill-level" id="level-${skill.key}">Beginner</div>
                 `;
@@ -316,8 +316,8 @@
             // Collect all skill values
             let formData = `email=${encodeURIComponent(email)}`;
             skills.forEach(skill => {
-                const value = document.getElementById(`skill-${skill.key}`).value;
-                formData += `&${skill.key}=${encodeURIComponent(value)}`;
+                const value = parseFloat(document.getElementById(`skill-${skill.key}`).value) || 0.0;
+                    formData += `&${skill.key}=${encodeURIComponent(value.toFixed(2))}`;
             });
 
             fetch('/save_skills', {

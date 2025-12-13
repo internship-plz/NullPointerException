@@ -325,7 +325,8 @@
             const slider = document.createElement('input');
             slider.type = 'range';
             slider.min = 0;
-            slider.max = 100;
+            slider.max = 1;
+            slider.step = 0.01;
             slider.value = value;
             slider.className = 'skill-slider';
             slider.style.flex = '1';
@@ -336,10 +337,10 @@
             valDiv.style.textAlign = 'center';
             valDiv.style.fontWeight = '600';
             valDiv.style.color = '#667eea';
-            valDiv.textContent = value;
+            valDiv.textContent = parseFloat(value).toFixed(2);
 
             slider.addEventListener('input', () => {
-                valDiv.textContent = slider.value;
+                valDiv.textContent = parseFloat(slider.value).toFixed(2);
             });
 
             const removeBtn = document.createElement('button');
@@ -372,12 +373,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             toggleSkillsVisibility();
             // add a default blank skill entry for convenience
-            addSkillEntry('', 50);
+            addSkillEntry('', 0.5);
             const addBtn = document.getElementById('addSkillBtn');
             if (addBtn) addBtn.addEventListener('click', () => {
                 // prevent adding beyond available skills
                 const currentCount = document.querySelectorAll('#skills-list .skill-entry').length;
-                if (currentCount < allowedSkills.length) addSkillEntry('', 50);
+                if (currentCount < allowedSkills.length) addSkillEntry('', 0.5);
                 updateAvailableOptions();
             });
             // initial update to ensure duplicate options are disabled
@@ -416,10 +417,10 @@
                     document.querySelectorAll('#skills-list .skill-entry').forEach(entry => {
                         const nameInput = entry.querySelector('.skill-name');
                         const slider = entry.querySelector('.skill-slider');
-                        if (nameInput && slider) {
-                            const key = nameInput.value.trim();
-                            const val = parseInt(slider.value, 10) || 0;
-                            if (key) skillsObj[key] = val;
+                                if (nameInput && slider) {
+                                        const key = nameInput.value.trim();
+                                        const val = parseFloat(slider.value) || 0.0;
+                                        if (key) skillsObj[key] = parseFloat(val.toFixed(2));
                         }
                     });
                     // send as JSON string
