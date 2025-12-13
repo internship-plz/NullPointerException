@@ -22,5 +22,43 @@
             "Python": 0,
             "C++": 100
         }
+    },
+    "test3@example.com": {
+        "password": "test2",
+        "role": "employer",
+        "name": "jesus",
+        "jobs": []
+    },
+    "test3": {
+        "password": "test3",
+        "role": "employer",
+        "name": "test3emp",
+        "jobs": [
+            {
+                "job_id": "3cae35f4-1733-427c-ad49-ba1504d16f9d",
+                "title": "New Job",
+                "description": "this is a test job",
+                "weights": {},
+                "match_threshold": 0.0,
+                "maximum_pay": 0.0,
+                "starting_pay": 0.0
+            }
+        ]
+    },
+    "test44": {
+        "password": "test",
+        "role": "employer",
+        "name": "test34",
+        "jobs": [
+            {
+                "job_id": "6308198c-ce0f-4e16-a5cc-9a4be262fa19",
+                "title": "This is a new job",
+                "description": "thisis another job",
+                "weights": {},
+                "match_threshold": 0.0,
+                "maximum_pay": 0.0,
+                "starting_pay": 0.0
+            }
+        ]
     }
 }

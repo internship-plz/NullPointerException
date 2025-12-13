@@ -177,6 +177,10 @@
         </div>
 
         <div class="secondary-buttons">
+            {% if user_role and user_role|lower in ['company','employer'] %}
+                <button class="btn-secondary" onclick="window.location.href='/company/add_job?user_email={{ user_email }}'">➕ Post Job</button>
+                <button class="btn-secondary" onclick="window.location.href='/company/jobs?user_email={{ user_email }}'">📋 My Jobs</button>
+            {% endif %}
             <button class="btn-secondary" onclick="handleAbout()">ℹ️ About</button>
             <button class="btn-secondary" onclick="handleAccount()">⚙️ Account</button>
             <button class="btn-secondary" onclick="handleLogout()">🚪 Logout</button>

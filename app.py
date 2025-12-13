@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 import json
 import os
 from services.service import Service
+import uuid
 
 # --- Configuration ---
 app = Flask(__name__)
@@ -159,6 +160,94 @@ def home():
     # --- NEW: Get the user's role from the query string ---
     user_role = request.args.get('user_role', 'Unknown')
     return render_template('home.html', user_email=user_email, user_role=user_role)
+
+
+@app.route('/company/add_job')
+def company_add_job():
+    """Render add-job form for companies. Expects `user_email` in query string."""
+    user_email = request.args.get('user_email', 'Guest')
+    return render_template('add_job.html', user_email=user_email)
+
+
+@app.route('/company/jobs')
+def company_jobs():
+    """Display all jobs posted by the logged-in employer."""
+    user_email = request.args.get('user_email', 'Guest')
+
+    users_file = 'data/users.json'
+    if not os.path.exists(users_file):
+        return render_template('company_jobs.html', user_email=user_email, jobs=[])
+
+    with open(users_file, 'r') as f:
+        try:
+            users = json.load(f)
+        except json.JSONDecodeError:
+            return render_template('company_jobs.html', user_email=user_email, jobs=[])
+
+    company_info = users.get(user_email, {})
+    jobs = company_info.get('jobs', [])
+
+    return render_template('company_jobs.html', user_email=user_email, jobs=jobs)
+
+
+@app.route('/company/create_job', methods=['POST'])
+def company_create_job():
+    """Create a simple job (title + description) and save directly to data/users.json.
+
+    This validates the company exists and has role 'employer' (or 'company'), then
+    appends the job to the jobs list.
+    """
+    company_id = request.form.get('email') or request.form.get('company_id')
+    title = (request.form.get('title') or '').strip()
+    description = (request.form.get('description') or '').strip()
+
+    if not company_id or not title:
+        return jsonify({'success': False, 'message': 'Company email and job title are required.'}), 400
+
+    # Load users JSON
+    users_file = 'data/users.json'
+    if not os.path.exists(users_file):
+        return jsonify({'success': False, 'message': 'User database not found.'}), 500
+
+    with open(users_file, 'r') as f:
+        try:
+            users = json.load(f)
+        except json.JSONDecodeError:
+            return jsonify({'success': False, 'message': 'User database is invalid JSON.'}), 500
+
+    company_info = users.get(company_id)
+    if not company_info:
+        return jsonify({'success': False, 'message': 'Company account not found.'}), 404
+
+    role = company_info.get('role', '').lower()
+    if role not in ('company', 'employer'):
+        return jsonify({'success': False, 'message': 'Account is not a company/employer.'}), 403
+
+    # Ensure jobs list exists
+    if 'jobs' not in company_info:
+        users[company_id]['jobs'] = []
+
+    # Create job with minimal defaults
+    job_id = str(uuid.uuid4())
+    job_data = {
+        'job_id': job_id,
+        'title': title,
+        'description': description,
+        'weights': {},
+        'match_threshold': 0.0,
+        'maximum_pay': 0.0,
+        'starting_pay': 0.0
+    }
+
+    users[company_id]['jobs'].append(job_data)
+
+    # Save to file
+    try:
+        with open(users_file, 'w') as f:
+            json.dump(users, f, indent=4)
+        return jsonify({'success': True, 'message': 'Job created successfully.', 'job_id': job_id})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error saving job: {str(e)}'}), 500
 
 @app.route('/job_search', methods=['POST'])
 def job_search():

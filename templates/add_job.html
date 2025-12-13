@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Add Job</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px }
+        .card { background:white; border-radius:12px; padding:30px; width:100%; max-width:700px; box-shadow:0 10px 40px rgba(0,0,0,0.15)}
+        h1 { margin-bottom:8px; color:#333 }
+        p { color:#666; margin-bottom:20px }
+        label { display:block; margin-bottom:6px; font-weight:600 }
+        input[type=text], textarea { width:100%; padding:12px; border:1px solid #e0e0e0; border-radius:8px; box-sizing:border-box }
+        textarea { min-height:120px }
+        .row { display:flex; gap:12px; margin-top:18px }
+        .btn { padding:12px 18px; border-radius:8px; border:none; cursor:pointer; font-weight:700 }
+        .btn-primary { background:linear-gradient(135deg,#667eea,#764ba2); color:white }
+        .btn-secondary { background:#f8f9fa; border:1px solid #e0e0e0 }
+        .note { font-size:0.9em; color:#888; margin-top:12px }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>📢 Add Job Listing</h1>
+        <p>Post a new job (title and short description). You will be identified by your account email: <strong>{{ user_email }}</strong></p>
+
+        <form id="addJobForm">
+            <input type="hidden" id="email" name="email" value="{{ user_email }}">
+            <label for="title">Job Title</label>
+            <input type="text" id="title" name="title" placeholder="e.g. Backend Software Engineer" required>
+
+            <label for="description" style="margin-top:12px">Short Description</label>
+            <textarea id="description" name="description" placeholder="A short summary of the role (2-3 sentences)"></textarea>
+
+            <div class="row">
+                <button type="button" class="btn btn-primary" onclick="submitJob()">Create Job</button>
+                <button type="button" class="btn btn-secondary" onclick="goBack()">Cancel</button>
+            </div>
+
+            <div id="message" class="note" style="display:none"></div>
+        </form>
+    </div>
+
+    <script>
+        function submitJob(){
+            const email = document.getElementById('email').value;
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const msg = document.getElementById('message');
+            msg.style.display = 'none'; msg.textContent = '';
+            if(!email || !title){ msg.style.display='block'; msg.textContent='Email and title are required.'; return }
+
+            const body = `email=${encodeURIComponent(email)}&title=${encodeURIComponent(title)}&description=${encodeURIComponent(description)}`;
+            fetch('/company/create_job', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body })
+            .then(r=>r.json())
+            .then(data=>{
+                if(data.success){ msg.style.display='block'; msg.textContent='Job created (id: '+(data.job_id||'')+')'; setTimeout(()=>{ window.location.href = '/company/jobs?user_email='+encodeURIComponent(email) },1200) }
+                else { msg.style.display='block'; msg.textContent='Error: '+(data.message||'unknown') }
+            })
+            .catch(e=>{ msg.style.display='block'; msg.textContent='Network error'; console.error(e) })
+        }
+        function goBack(){ const email=document.getElementById('email').value; window.location.href='/company/jobs?user_email='+encodeURIComponent(email) }
+    </script>
+</body>
+</html>
