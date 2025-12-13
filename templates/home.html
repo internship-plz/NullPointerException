@@ -3,23 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Auth Demo</title>
+    <title>Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; border: 1px solid #ddd; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="email"], input[type="password"] { width: 100%; padding: 8px; box-sizing: border-box; }
-        .role-group { display: flex; gap: 20px; margin-top: 10px; }
-        .button-group button { padding: 10px 20px; margin-right: 10px; cursor: pointer; }
-        #message { margin-top: 20px; padding: 10px; border-radius: 4px; font-weight: bold; }
-        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        #existing-users { margin-top: 30px; font-size: 0.9em; color: #555; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95em;
+            color: #666;
+            margin-top: 15px;
+        }
+
+        .user-info span {
+            background: #f0f0f0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .main-button-container {
+            display: flex;
+            justify-content: center;
+            margin: 50px 0;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 1.2em;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .secondary-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            padding: 12px 30px;
+            font-size: 0.95em;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(0);
+        }
+
+        #message {
+            margin-top: 30px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            display: none;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-    <h1>
-        Candidate Homepage
-    <h1/>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>Dashboard</h1>
+            <div class="user-info">
+                <span>👤 {{ user_email }}</span>
+                <span>📌 {{ user_role | capitalize }}</span>
+            </div>
+        </div>
+
+        <div class="main-button-container">
+            <button class="btn-primary" onclick="handleJobSearch()">🔍 Job Search</button>
+        </div>
+
+        <div class="secondary-buttons">
+            <button class="btn-secondary" onclick="handleAbout()">ℹ️ About</button>
+            <button class="btn-secondary" onclick="handleAccount()">⚙️ Account</button>
+            <button class="btn-secondary" onclick="handleLogout()">🚪 Logout</button>
+        </div>
+
+        <div id="message"></div>
+    </div>
+
+    <script>
+        function handleJobSearch() {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = '';
+            messageDiv.className = '';
+
+            const email = '{{ user_email }}';
+            
+            fetch('/job_search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `email=${encodeURIComponent(email)}`
+            })
+            .then(response => {
+                return response.json().then(data => ({
+                    status: response.status,
+                    data: data
+                }));
+            })
+            .then(({ status, data }) => {
+                messageDiv.textContent = data.message;
+                if (data.success) {
+                    messageDiv.className = 'success';
+                } else {
+                    messageDiv.className = 'error';
+                }
+            })
+            .catch(error => {
+                messageDiv.textContent = 'An error occurred during job search.';
+                messageDiv.className = 'error';
+                console.error('Error:', error);
+            });
+        }
+
+        function handleAbout() {
+            alert('About: This is a candidate job matching platform that connects you with relevant opportunities based on your skills.');
+        }
+
+        function handleAccount() {
+            alert('Account Settings: User - {{ user_email }}\nRole - {{ user_role }}');
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/';
+            }
+        }
+    </script>
 </body>
 </html>

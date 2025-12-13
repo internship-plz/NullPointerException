@@ -87,6 +87,21 @@ def home():
     user_role = request.args.get('user_role', 'Unknown')
     return render_template('home.html', user_email=user_email, user_role=user_role)
 
+@app.route('/job_search', methods=['POST'])
+def job_search():
+    """Handles the job search request by calling the service's job_search method."""
+    email = request.form.get('email')
+    
+    if not email:
+        return jsonify({'success': False, 'message': 'Email is required.'}), 400
+    
+    try:
+        # Call the service's job_search method
+        results = services.job_search(email)
+        return jsonify({'success': True, 'message': 'Job search completed successfully!', 'results': results})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error during job search: {str(e)}'}), 500
+
 if __name__ == '__main__':
     if not os.path.exists(JSON_FILE):
         save_users([])
