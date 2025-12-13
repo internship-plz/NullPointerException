@@ -34,7 +34,7 @@ class CandidateSupplier:
         self.load_candidates()
 
 
-    def job_search(self, candidate_id: str):
+    def get_candidate_skills(self, candidate_id: str):
         candidate = self.candidates.get(candidate_id)
         
         return candidate.skills

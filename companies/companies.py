@@ -23,6 +23,18 @@ class JobSupplier:
                 companies[user_id] = company
 
         return companies
+    
+
+    def get_bids_for_candidate(self, candidate_skills: dict):
+        bids = {}
+        for company_id, company in self.companies.item():
+            job, bid_amount = company.find_job_bid_for_candidate(candidate_skills)
+            if job is not None:
+                bids[company_id] = {
+                    "job": job,
+                    "bid_amount": bid_amount
+                }  
+        return bids
         
 
 class Job:
