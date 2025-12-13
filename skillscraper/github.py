@@ -1,9 +1,10 @@
 import os
+from pathlib import Path
 import requests
 from collections import defaultdict
 from urllib.parse import urlparse
 import json
-
+print(os.getcwd())
 def save_json(data, filename):
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
@@ -19,7 +20,7 @@ def get_repo_languages(owner: str, repo: str) -> dict:
 
 GITHUB_API = "https://api.github.com"
 from dotenv import load_dotenv
-load_dotenv("a.env")
+load_dotenv("skillscraper/.env")
 TOKEN = os.getenv("GITHUB_TOKEN")
 
 HEADERS = {
@@ -56,11 +57,10 @@ def analyze_profile(profile_url):
     repos = get_user_repos(username)
 
     profile_summary = {
-        "username": username,
         "repo_count": len(repos),
         "languages": defaultdict(int)
     }
-
+    total_bytes = 0
     for repo in repos:
         if repo["fork"]:
             continue  # skip forks
@@ -70,8 +70,28 @@ def analyze_profile(profile_url):
 
         langs = get_repo_languages(owner, name)
         for lang, bytes_ in langs.items():
-            profile_summary["languages"][lang] += bytes_
-
+            if (lang != "Typst" and lang != "Batchfile"):
+                profile_summary["languages"][lang] += bytes_
+            total_bytes += bytes_
+    for lang in profile_summary["languages"]:
+        profile_summary["languages"][lang] /= total_bytes
     return profile_summary
-profile = analyze_profile("https://github.com/OliverBao")
-save_json(profile, "profile.json")
+def load_users():
+    DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "users.json"
+
+    if not DATA_PATH.exists():
+        return {}
+    with open(DATA_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def save_users(users):
+    DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "users.json"
+
+    with open(DATA_PATH, "w", encoding="utf-8") as f:
+        json.dump(users, f, indent=2)
+def add_github(profile_url, email):
+    profile = analyze_profile(profile_url)
+    users = load_users()
+    users[email]["github"] = profile
+    save_users(users)
+add_github("https://github.com/OliverBao", "hi@hi")
