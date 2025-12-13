@@ -263,24 +263,15 @@
     </div>
 
     <script>
-        // List of skills to evaluate
-        const skills = [
-            { name: 'Python', key: 'python' },
-            { name: 'Java', key: 'java' },
-            { name: 'JavaScript', key: 'javascript' },
-            { name: 'C++', key: 'cpp' },
-            { name: 'Go', key: 'go' },
-            { name: 'SQL', key: 'sql' },
-            { name: 'NoSQL', key: 'nosql' },
-            { name: 'AWS', key: 'aws' },
-            { name: 'Google Cloud', key: 'gcp' },
-            { name: 'Azure', key: 'azure' },
-            { name: 'Docker', key: 'docker' },
-            { name: 'Kubernetes', key: 'kubernetes' },
-            { name: 'System Design', key: 'system_design' },
-            { name: 'Problem Solving', key: 'problem_solving' },
-            { name: 'Communication', key: 'communication' }
-        ];
+        // Allowed skills provided by server (from enums). Fallback to a small default if not provided.
+        const allowedSkills = {{ allowed_skills|tojson }};
+
+        // Build skills array from allowedSkills; compute simple keys from names
+        const skills = (allowedSkills || []).map(s => {
+            // Create a normalized key: lowercase and replace non-alphanum with underscore
+            const key = s.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+            return { name: s, key: key };
+        });
 
         function getLevelLabel(value) {
             value = parseInt(value);

@@ -3,6 +3,7 @@ import json
 import os
 from services.service import Service
 import uuid
+from enums.skills import Skills
 
 # --- Configuration ---
 app = Flask(__name__)
@@ -61,7 +62,10 @@ def index():
     """Renders the main login/signup page."""
     users = load_users()
     user_emails = [user['email'] for user in users]
-    return render_template('index.html', user_emails=user_emails)
+    # Provide allowed skills (from enums) to the signup template so the UI
+    # can restrict selectable skills to the canonical list.
+    allowed_skills = [s.value for s in Skills]
+    return render_template('index.html', user_emails=user_emails, allowed_skills=allowed_skills)
 
 @app.route('/create_user', methods=['POST'])
 def create_user():
@@ -116,6 +120,41 @@ def create_user():
             # ignore parse errors and treat as empty
             skills_dict = {}
 
+    # Validate and normalize skills: only allow skills listed in enums.Skills
+    if skills_dict:
+        allowed = [s.value for s in Skills]
+        allowed_lower = {a.lower(): a for a in allowed}
+        invalid = []
+        normalized = {}
+        duplicates = []
+        for k, v in skills_dict.items():
+            kl = (k or '').strip().lower()
+            if not kl:
+                continue
+            if kl in allowed_lower:
+                # store with the canonical casing from the enum
+                normalized_name = allowed_lower[kl]
+                if normalized_name in normalized:
+                    duplicates.append(normalized_name)
+                    continue
+                try:
+                    normalized[normalized_name] = int(v)
+                except Exception:
+                    try:
+                        normalized[normalized_name] = float(v)
+                    except Exception:
+                        # ignore non-numeric
+                        pass
+            else:
+                invalid.append(k)
+
+        if invalid:
+            return jsonify({'success': False, 'message': f'The following skills are not allowed: {invalid}'}), 400
+        if duplicates:
+            return jsonify({'success': False, 'message': f'Duplicate skill selections are not allowed: {duplicates}'}), 400
+
+        skills_dict = normalized
+
     new_user = {
         'email': email.strip(),
         'password': password,
@@ -130,7 +169,13 @@ def create_user():
     users.append(new_user)
     save_users(users)
 
-    return jsonify({'success': True, 'message': f'Account for {email} ({role}) created successfully!'})
+    # After creating the account, return a redirect so the client can sign in
+    try:
+        home_url = url_for('home', user_email=new_user.get('email'), user_role=new_user.get('role', 'Unknown'))
+    except Exception:
+        home_url = '/home'
+
+    return jsonify({'success': True, 'redirect': home_url, 'message': f'Account for {email} ({role}) created successfully!'})
 
 @app.route('/sign_in', methods=['POST'])
 def sign_in():
@@ -160,6 +205,14 @@ def home():
     # --- NEW: Get the user's role from the query string ---
     user_role = request.args.get('user_role', 'Unknown')
     return render_template('home.html', user_email=user_email, user_role=user_role)
+
+
+@app.route('/skills_evaluation')
+def skills_evaluation():
+    """Render the skills evaluation page with allowed skills from enums."""
+    user_email = request.args.get('user_email', 'Guest')
+    allowed_skills = [s.value for s in Skills]
+    return render_template('skills_evaluation.html', user_email=user_email, allowed_skills=allowed_skills)
 
 
 @app.route('/company/add_job')
