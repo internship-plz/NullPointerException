@@ -109,7 +109,7 @@ def create_user():
                         k, v = part.split(':', 1)
                         k = k.strip()
                         try:
-                            skills_dict[k] = int(v.strip())
+                            skills_dict[k] = float(v.strip())
                         except ValueError:
                             try:
                                 skills_dict[k] = float(v.strip())
@@ -569,7 +569,6 @@ def job_search():
                     job_with_company['_match_score'] = match_score
                     match_threshold = float(job_with_company.get('match_threshold', 0))
                     job_with_company['_meets'] = (match_score > match_threshold)
-                    print(match_score, match_threshold, job_with_company['_meets'])
                     
                     # Compute bid amount if candidate meets threshold
                     starting_pay = float(job_with_company.get('starting_pay', 0))

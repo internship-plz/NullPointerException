@@ -78,3 +78,5 @@ class Service:
 
         company = self.job_supplier.companies[company_id]
         company.add_job(job)
+        
+    
