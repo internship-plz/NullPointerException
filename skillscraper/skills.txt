@@ -1,0 +1,11 @@
+python
+javascript
+c++
+c
+sql
+r
+java
+rust
+html
+css
+fpga
