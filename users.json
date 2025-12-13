@@ -1,1 +1,13 @@
-
+{
+    "hi@hi": {
+        "name": "hi",
+        "password": "hi",
+        "role": "candidate",
+        "age": 25,
+        "interest": "Cybersecurity",
+        "skills": {
+            "python": 6,
+            "javascript": 7
+        }
+    }
+}
