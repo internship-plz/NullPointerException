@@ -612,8 +612,20 @@ def job_search():
                         job_with_company['_bid_amount'] = None
                     
                     all_jobs.append(job_with_company)
+
+                aggregates = {}
+                for job in all_jobs:
+                    if '_improvements' in job:
+                        for skill, level in job['_improvements'].items():
+                            if skill not in aggregates:
+                                aggregates[skill] = level
+                            else:
+                                aggregates[skill] += level
+
+                improvements = [skill for skill, level in sorted(aggregates.items(), key=lambda x: x[1], reverse=True)][:5]
+                        
         
-        return jsonify({'success': True, 'message': 'Job search completed successfully!', 'user_email': email, 'all_jobs': all_jobs})
+        return jsonify({'success': True, 'message': 'Job search completed successfully!', 'user_email': email, 'all_jobs': all_jobs, 'improvements': improvements})
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error during job search: {str(e)}'}), 500
 
