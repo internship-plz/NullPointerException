@@ -57,7 +57,7 @@
                 console.error('Error loading from sessionStorage:', e);
             }
 
-            function renderJobs(jobs) {
+            function renderJobs(jobs, improvements) {
                 const container = document.getElementById('jobsContainer');
             
                 if (!jobs || jobs.length === 0) {
@@ -129,7 +129,7 @@
                 if (jobsBelowThreshold.length > 0) {
                     html += '<h2 style="color:#333;margin-bottom:20px;margin-top:30px">📈 Jobs Below Your Threshold</h2>';
                     html += '<div style="background:white;border-radius:12px;padding:20px;box-shadow:0 5px 20px rgba(0,0,0,0.1)">';
-                    html += `<p style="color:#666">You don't quite match ${jobsBelowThreshold.length} job(s). Consider improving your skills or check back later.</p>`;
+                    html += `<p style="color:#666">You don't quite match ${jobsBelowThreshold.length} job(s). Consider improving these skills: ${improvements}</p>`;
                     html += '</div>';
                 }
 
@@ -149,12 +149,12 @@
             }
 
             if (jobsData && jobsData.all_jobs) {
-                renderJobs(jobsData.all_jobs);
+                renderJobs(jobsData.all_jobs, jobsData.improvements);
             } else if (serverJobs && Array.isArray(serverJobs)) {
-                renderJobs(serverJobs);
+                renderJobs(serverJobs, []);
             } else {
                 document.getElementById('jobsContainer').innerHTML = '<p style="text-align:center;color:#666">Loading job search results...</p>';
-                renderJobs([]);
+                renderJobs([], []);
             }
         </script>
     </div>
