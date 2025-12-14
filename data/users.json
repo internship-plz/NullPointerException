@@ -1,19 +1,52 @@
 {
-    "hi@hi": {
-        "name": "hi",
-        "password": "hi",
-        "role": "candidate",
-        "skills": {
-            "Python": 0.6,
-            "JavaScript": 0.7
+  "hi@hi": {
+    "name": "hi",
+    "password": "hi",
+    "role": "candidate",
+    "skills": {
+      "python": 0.6,
+      "javascript": 0.7
+    },
+    "github": {
+      "repo_count": 6,
+      "languages": {
+        "Python": 0.9687603057276141,
+        "C": 0.01775871649705934,
+        "PowerShell": 0.0020341357808063105,
+        "JavaScript": 0.00037908078481621853,
+        "CSS": 0.0002547037560162784,
+        "HTML": 0.00019662336671334504,
+        "Java": 0.010244908474750423
+      }
+    },
+    "leetcode": {
+      "languages": {
+        "Python": 40,
+        "C": 3,
+        "Python3": 93,
+        "Pandas": 5
+      },
+      "submissions": [
+        {
+          "difficulty": "All",
+          "count": 141,
+          "submissions": 177
         },
-        "bids": {
-            "702174aa-c24c-49ea-9c0c-66f6f8a31e83": 22000.0,
-            "de549bfb-6495-41ab-a1fa-d0fde761c2d9": 96000.0,
-            "6f0ac98d-9ada-4cc9-ab3c-41d701875745": 350600.0,
-            "3cae35f4-1733-427c-ad49-ba1504d16f9d": 0.0,
-            "6308198c-ce0f-4e16-a5cc-9a4be262fa19": 0.0,
-            "bf66bc70-2a20-4ada-90e5-26dddf998ce7": 0.0
+        {
+          "difficulty": "Easy",
+          "count": 82,
+          "submissions": 98
+        },
+        {
+          "difficulty": "Medium",
+          "count": 54,
+          "submissions": 73
+        },
+        {
+          "difficulty": "Hard",
+          "count": 5,
+          "submissions": 6
+>>>>>>> 36e1d24 (:wq)
         }
     },
     "test@example.com": {
@@ -391,4 +424,35 @@
             "Haskell": 0.81
         }
     }
+  },
+  "test@example.com": {
+    "password": "test",
+    "role": "employer",
+    "name": "Test Smith"
+  },
+  "test1@example.com": {
+    "password": "test",
+    "role": "candidate",
+    "name": "Test Smith",
+    "skills": {
+      "Java": 37,
+      "Python": 0,
+      "C++": 100
+    }
+  },
+  "a": {
+    "password": "geqwuw-punmoD-cehbi8",
+    "role": "employer",
+    "name": "j"
+  },
+  "jj": {
+    "password": "qurdad-bonzac-2cakvU",
+    "role": "employer",
+    "name": "j"
+  },
+  "jhkj": {
+    "password": "uih",
+    "role": "candidate",
+    "name": "hjkh"
+  }
 }

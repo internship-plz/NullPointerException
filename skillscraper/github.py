@@ -89,9 +89,3 @@ def save_users(users):
 
     with open(DATA_PATH, "w", encoding="utf-8") as f:
         json.dump(users, f, indent=2)
-def add_github(profile_url, email):
-    profile = analyze_profile(profile_url)
-    users = load_users()
-    users[email]["github"] = profile
-    save_users(users)
-add_github("https://github.com/OliverBao", "hi@hi")
