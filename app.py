@@ -565,12 +565,22 @@ def job_search():
                         match_score = match_score / total_weight
                     else:
                         match_score = 1.0
-                    
+
                     job_with_company['_match_score'] = match_score
                     match_threshold = float(job_with_company.get('match_threshold', 0))
                     # Accept matches that are effectively greater than threshold allowing for tiny FP error
                     epsilon = 1e-9
                     job_with_company['_meets'] = (match_score > (match_threshold - epsilon))
+
+                    if (match_score < match_threshold):
+                        job_with_company['_improvements'] = {}
+                        for skill, weight in weights.items():
+                            current_level = float(candidate_skills.get(skill, 0)) * weight
+                            if weight < match_threshold:
+                                needed_level = (match_threshold - (match_score - current_level)) / weight
+                                if needed_level > 1.0:
+                                    needed_level = 1.0
+                                job_with_company['_improvements'][skill] = round(needed_level, 2)
                     
                     # Compute bid amount if candidate meets threshold
                     starting_pay = float(job_with_company.get('starting_pay', 0))
