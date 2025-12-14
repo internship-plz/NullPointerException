@@ -355,5 +355,40 @@
         "skills": {
             "Haskell": 0.87
         }
+    },
+    "oliverbaosdagdgs": {
+        "password": "xiaotutu0g",
+        "role": "candidate",
+        "name": "adsf",
+        "skills": {
+            "Haskell": 0.97
+        }
+    },
+    "oliverbaoghh": {
+        "password": "xiaotutu0sdf",
+        "role": "employer",
+        "name": "asdf",
+        "jobs": [
+            {
+                "job_id": "b3cff234-8091-450a-97c4-a9c40f2fe119",
+                "title": "afd",
+                "description": "adsf",
+                "weights": {
+                    "CSS": 0.72
+                },
+                "match_threshold": 0.31,
+                "maximum_pay": 500.0,
+                "starting_pay": 100.0
+            }
+        ]
+    },
+    "oliverbaosdghh": {
+        "password": "xiaotutu0h",
+        "role": "candidate",
+        "name": "adsf",
+        "skills": {
+            "CSS": 0.82,
+            "Haskell": 0.81
+        }
     }
 }
