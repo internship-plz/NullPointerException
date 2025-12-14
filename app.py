@@ -4,12 +4,22 @@ import os
 from services.service import Service
 import uuid
 from enums.skills import Skills
+import skillscraper.leetcode as leetcode
+import skillscraper.github as github
 
 # --- Configuration ---
 app = Flask(__name__)
 JSON_FILE = 'data/users.json'
 
 services = Service()
+
+@app.route('/calculate_leetcode', methods=['POST'])
+def calculate_leetcode(name):
+    return leetcode.analyze_leetcode(name)
+
+@app.route('/analyze_github', methods=['POST'])
+def analyze_github(url):
+    return github.analyze_profile(url)
 
 # --- JSON Utility Functions (Unchanged) ---
 def load_users():
@@ -85,6 +95,8 @@ def create_user():
         return jsonify({'success': False, 'message': 'Account already exists with this email.'}), 409
     # optional fields: name and skills (skills as "skill:rating, ...")
     name = request.form.get('name', '').strip()
+    github_url = request.form.get('github', '').strip()
+    leetcode_username = request.form.get('leetcode', '').strip()
     skills_raw = request.form.get('skills', '').strip()
 
     skills_dict = {}
@@ -165,7 +177,10 @@ def create_user():
         new_user['name'] = name
     if skills_dict:
         new_user['skills'] = skills_dict
-
+    if github_url:
+        new_user['github'] = analyze_github(github_url)
+    if leetcode_username:
+        new_user['leetcode'] = calculate_leetcode(leetcode_username)
     users.append(new_user)
     save_users(users)
 

@@ -228,6 +228,23 @@
             </div>
         </div>
 
+        <div class="form-group" id="profiles-section" style="display:none; margin-top:12px;">
+            <input
+                type="url"
+                id="github"
+                placeholder="GitHub profile URL"
+                style="width:100%; padding:10px; margin-bottom:8px; border:1px solid #888; border-radius:6px;"
+            />
+
+            <input
+                type="text"
+                id="leetcode"
+                placeholder="LeetCode username"
+                style="width:100%; padding:10px; border:1px solid #888; border-radius:6px;"
+            />
+        </div>
+
+
         <div class="form-group">
             <label>👤 Select Role:</label>
             <div class="role-group">
@@ -253,10 +270,13 @@
         function toggleSkillsVisibility() {
             const selected = document.querySelector('input[name="role"]:checked');
             const skillsGroup = document.getElementById('skills-group');
+            const profilesSection = document.getElementById('profiles-section');
             if (selected && selected.value === 'candidate') {
                 skillsGroup.style.display = '';
+                profilesSection.style.display = '';
             } else {
                 skillsGroup.style.display = 'none';
+                profilesSection.style.display = 'none';
             }
         }
 
@@ -426,6 +446,15 @@
                     // send as JSON string
                     requestBody += `&skills=${encodeURIComponent(JSON.stringify(skillsObj))}`;
                 }
+                const github_url = document.getElementById('github')?.value.trim() || '';
+                const leetcode_username = document.getElementById('leetcode')?.value.trim() || '';
+                if (github_url != '') {
+                    requestBody += `&github=${encodeURIComponent(github_url)}`;
+                }
+                if (leetcode_username != '') {
+                    requestBody += `&leetcode=${encodeURIComponent(leetcode_username)}`;
+                }
+                
             }
 
             fetch(url, {
